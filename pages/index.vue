@@ -233,7 +233,7 @@ onMounted(() => {
   <div class="column-flex gap-4 relative" :class="wordGuessed ? 'pb-30' : ''">
     <div v-if="runActive">
       <div class="text-center">
-        <div class="flex items-center gap-2 justify-center">
+        <div class="flex items-center gap-2 justify-center flex-wrap">
           <h1
             class="text-brand-yellow"
             @click="toggleWordVisibility"
@@ -350,7 +350,7 @@ onMounted(() => {
       </div>
     </div>
     <div v-else class="w-full column-flex">
-      <div class="flex items-center justify-center gap-2">
+      <div class="flex items-center justify-center gap-2 flex-wrap">
         <h1 class="text-center">
           {{
             initialUsername
