@@ -18,6 +18,7 @@ export default defineNuxtConfig({
     "@nuxt/image",
     "@nuxt/ui",
     "@pinia/nuxt",
+    "@nuxtjs/device",
   ],
   css: ["~/assets/css/main.css"],
 });

@@ -10,7 +10,7 @@ const props = defineProps<{
   remainingGuesses: number;
 }>();
 
-const emit = defineEmits(["wordGuessed", "guessAttempted"]);
+const emit = defineEmits(["wordGuessed", "guessAttempted", "userFocused"]);
 
 const inputValues = ref(
   props.words.map(() => [Array(props.words[0].length).fill("")])
@@ -118,6 +118,11 @@ const handleKeydown = (
 const handleFocus = (event: FocusEvent) => {
   const input = event.target as HTMLInputElement;
   input.select(); // Auto-select the text when the input is focused
+  emit("userFocused", true);
+};
+
+const handleBlur = () => {
+  emit("userFocused", false);
 };
 
 const alphabetStore = useAlphabetStore();
@@ -303,6 +308,7 @@ watch(
                   handleKeydown(wordIndex, guessIndex, letterIndex, $event)
                 "
                 @focus="handleFocus"
+                @blur="handleBlur"
               />
             </div>
           </div>

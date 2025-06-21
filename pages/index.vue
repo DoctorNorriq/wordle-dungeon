@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { Stat } from "~/types";
 import { useAlphabetStore } from "~/stores/useAlphabetStore";
+const { isMobile } = useDevice();
 
 const alphabetStore = useAlphabetStore();
 
@@ -65,11 +66,30 @@ const showingStats = ref(true);
 const toggleStats = () => {
   showingStats.value = !showingStats.value;
 };
+
 const showingAlphabet = ref(true);
+const wasFocused = ref(false);
+
 const toggleAlphabet = () => {
   showingAlphabet.value = !showingAlphabet.value;
 };
 
+const handleUserFocused = (focused: boolean) => {
+  if (isMobile) {
+    // Adjust this breakpoint as needed
+    if (focused) {
+      if (showingAlphabet.value) {
+        showingAlphabet.value = false;
+        wasFocused.value = true;
+      }
+    } else {
+      if (wasFocused.value) {
+        showingAlphabet.value = true;
+        wasFocused.value = false;
+      }
+    }
+  }
+};
 const handleGuessAttempted = () => {
   remainingGuesses.value--;
 };
@@ -161,6 +181,7 @@ onMounted(() => {
         :remaining-guesses="remainingGuesses"
         @guess-attempted="handleGuessAttempted"
         @word-guessed="handleWordGuessed"
+        @user-focused="handleUserFocused"
       />
     </section>
 
