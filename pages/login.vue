@@ -19,10 +19,13 @@ const signInWithOtp = async () => {
 
   emailError.value = "";
 
+  const currentOrigin = window.location.origin;
+  const redirectTo = `${currentOrigin}/confirm`;
+
   const { error } = await supabase.auth.signInWithOtp({
     email: email.value,
     options: {
-      emailRedirectTo: "http://localhost:3000/confirm",
+      emailRedirectTo: redirectTo,
     },
   });
 
