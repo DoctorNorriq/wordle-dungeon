@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { WordDefinition, Reward } from "~/types";
-import { monsters, type Monster } from "~/data/monsters";
+import { enemies, type Enemy } from "~/data/enemies";
+
 import { useAlphabetStore } from "~/stores/useAlphabetStore";
 
 const props = defineProps<{
@@ -21,19 +22,17 @@ const guessResults = ref<
 const currentGuessIndex = ref(props.words.map(() => 0));
 const errorMessage = ref("");
 
-const currentMonster = ref<Monster>(
-  monsters[Math.floor(Math.random() * monsters.length)]
+const currentEnemy = ref<Enemy>(
+  enemies[Math.floor(Math.random() * enemies.length)]
 );
 
-const monsterType = computed(() => currentMonster.value.type);
+const enemyType = computed(() => currentEnemy.value.type);
 const wordGuessed = ref(false);
 
 const getRewardForGuesses = (guesses: number): Reward => {
   const reward =
-    currentMonster.value.baseRewards.find((r) => r.guessNo === guesses) ||
-    currentMonster.value.baseRewards[
-      currentMonster.value.baseRewards.length - 1
-    ];
+    currentEnemy.value.baseRewards.find((r) => r.guessNo === guesses) ||
+    currentEnemy.value.baseRewards[currentEnemy.value.baseRewards.length - 1];
   return reward;
 };
 
@@ -265,13 +264,22 @@ watch(
         }"
         :text="`Guess #${currentGuessNumber[wordIndex]}: XP: ${potentialRewards[wordIndex].experience}, Coins: ${potentialRewards[wordIndex].coins}`"
         arrow
-      >
-        <p
-          class="mb-2 text-center trade-winds"
+        ><div
+          class="flex items-center gap-2 mb-2"
           :class="wordGuessed ? 'text-brand-red line-through' : ''"
         >
-          {{ monsterType }}
-        </p>
+          <Icon
+            name="material-symbols:sentiment-extremely-dissatisfied"
+            class="text-xl"
+          />
+          <p class="text-center trade-winds">
+            {{ enemyType }}
+          </p>
+          <Icon
+            name="material-symbols:sentiment-extremely-dissatisfied"
+            class="text-xl"
+          />
+        </div>
       </UTooltip>
       <div class="column-flex gap-2">
         <div

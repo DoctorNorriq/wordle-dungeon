@@ -6,12 +6,12 @@ export interface Reward {
   guessNo: number;
 }
 
-export interface Monster {
+export interface Enemy {
   type: string;
   baseRewards: Reward[];
 }
 
-export const monsters: Monster[] = [
+export const enemies: Enemy[] = [
   {
     type: "Analphabetic Wizard",
     baseRewards: [
