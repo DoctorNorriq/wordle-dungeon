@@ -50,7 +50,8 @@
     color: var(--color-brand-white);
   }
 
-  h1 {
+  h1,
+  h1 span {
     font-family: "Trade Winds", system-ui;
     font-size: clamp(2rem, 5vw, 3rem);
   }

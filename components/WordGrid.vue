@@ -132,6 +132,7 @@ const lockGuess = async (wordIndex: number) => {
   const guessWord = inputValues.value[wordIndex][currentGuess]
     .join("")
     .toLowerCase();
+  const correctWord = props.words[wordIndex].toLowerCase();
 
   // Check for duplicate guess
   const isDuplicate = inputValues.value[wordIndex]
@@ -145,14 +146,22 @@ const lockGuess = async (wordIndex: number) => {
   }
 
   console.log("Guessed word:", guessWord);
-  console.log("Correct word:", props.words[wordIndex].toLowerCase());
+  console.log("Correct word:", correctWord);
 
-  if (guessWord.length !== props.words[wordIndex].length) {
+  if (guessWord.length !== correctWord.length) {
     errorMessage.value = "Please fill in all letters before submitting.";
     return;
   }
 
-  const isValid = await isValidWord(guessWord);
+  // If the guess matches the target word exactly, accept it regardless of dictionary validation
+  const isExactMatch = guessWord === correctWord;
+
+  // Only check dictionary if it's not an exact match
+  let isValid = isExactMatch;
+  if (!isExactMatch) {
+    isValid = await isValidWord(guessWord);
+  }
+
   if (!isValid) {
     errorMessage.value = "This is not a valid word. Please try again.";
     return;
@@ -160,30 +169,55 @@ const lockGuess = async (wordIndex: number) => {
 
   errorMessage.value = "";
   lockedGuesses.value[wordIndex][currentGuess] = true;
-  const correctWord = props.words[wordIndex].toLowerCase();
-  let allCorrect = true;
 
-  guessResults.value[wordIndex][currentGuess] = guessWord
-    .split("")
-    .map((letter, index) => {
-      const upperLetter = letter.toUpperCase();
-      if (letter === correctWord[index]) {
-        alphabetStore.updateLetter(upperLetter, "correct");
-        return "correct";
-      }
-      if (correctWord.includes(letter)) {
-        alphabetStore.updateLetter(upperLetter, "wrong-place");
-        allCorrect = false;
-        return "wrong-place";
-      }
-      alphabetStore.updateLetter(upperLetter, "incorrect");
+  let allCorrect = true;
+  // Step 1: First pass - mark correct positions
+  const results = guessWord.split("").map((letter, index) => {
+    if (letter === correctWord[index]) {
+      return "correct";
+    }
+    return null;
+  });
+
+  // Step 2: Count remaining letters in the target word
+  const letterCounts: Record<string, number> = {};
+  correctWord.split("").forEach((letter, index) => {
+    if (results[index] !== "correct") {
+      letterCounts[letter] = (letterCounts[letter] || 0) + 1;
+    }
+  });
+
+  // Step 3: Second pass - mark wrong-place and incorrect letters
+  guessWord.split("").forEach((letter, index) => {
+    if (results[index] === "correct") {
+      return; // Skip letters already marked as correct
+    }
+
+    if (letterCounts[letter] && letterCounts[letter] > 0) {
+      // Letter exists in the target word and we haven't used all occurrences yet
+      results[index] = "wrong-place";
+      letterCounts[letter]--;
+    } else {
+      // Letter doesn't exist or all occurrences have been accounted for
+      results[index] = "incorrect";
+    }
+  });
+
+  // Update alphabet store and check if all correct
+  results.forEach((result, index) => {
+    const letter = guessWord[index].toUpperCase();
+    alphabetStore.updateLetter(letter, result);
+    if (result !== "correct") {
       allCorrect = false;
-      return "incorrect";
-    });
+    }
+  });
+
+  guessResults.value[wordIndex][currentGuess] = results;
 
   console.log("All correct:", allCorrect);
   emit("guessAttempted");
 
+  // The rest of the function remains the same...
   if (allCorrect) {
     console.log("Word guessed correctly!");
     const finalReward = getRewardForGuesses(

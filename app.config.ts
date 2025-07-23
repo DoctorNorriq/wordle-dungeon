@@ -3,7 +3,7 @@ export default defineAppConfig({
     strategy: "merge",
     button: {
       slots: {
-        base: "rounded justify-center shadow cursor-pointer uppercase",
+        base: "rounded justify-center shadow",
       },
       variants: {
         color: {
@@ -21,7 +21,7 @@ export default defineAppConfig({
           soft: "",
           subtle: "",
           ghost: "",
-          link: "",
+          link: "!p-0",
         },
         size: {
           xs: {
